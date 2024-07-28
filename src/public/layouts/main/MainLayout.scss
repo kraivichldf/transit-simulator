@@ -26,3 +26,7 @@ nav ul li a {
 main {
   padding-top: 40px;
 }
+
+.leaflet-control-attribution {
+  display: none !important;
+}
