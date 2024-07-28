@@ -16,7 +16,11 @@ const RoutingMachine: React.FC<RoutingProps> = ({ waypoints }) => {
   useEffect(() => {
     const routingControl = L.Routing.control({
       waypoints: waypoints.map((point) => L.latLng(point)),
-      routeWhileDragging: true,
+      routeWhileDragging: false,
+      addWaypoints: false,
+      createMarker: function(i: number, waypoint: { latLng: L.LatLngExpression; }) {
+        return L.marker(waypoint.latLng, { draggable: false }).bindPopup(`Waypoint ${i + 1}`);
+      }
     }).addTo(map);
 
     return () => {
