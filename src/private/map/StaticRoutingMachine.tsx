@@ -4,13 +4,14 @@ import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
-import stopIcon from '../../assets/stop-svgrepo-com.svg';
 
 interface RoutingProps {
   waypoints: L.LatLngTuple[];
+  lineColor: string;
+  markerColor: string;
 }
 
-const StaticRoutingMachine: React.FC<RoutingProps> = ({ waypoints }) => {
+const StaticRoutingMachine: React.FC<RoutingProps> = ({ waypoints, lineColor, markerColor }) => {
   const map = useMap();
   const [currentWaypoints, setCurrentWaypoints] = useState([...waypoints] as L.LatLngTuple[]);
   useEffect(() => {
@@ -18,27 +19,32 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ waypoints }) => {
       return;
     }
     setCurrentWaypoints(waypoints);
+    const customDivIcon = function(name: string, number: number) {
+      return L.divIcon({
+          className: `${name}-div-icon`,
+          iconSize: [25, 25],
+          popupAnchor: [0, -12],
+          html: `<div>${number}</div>`,
+      });
+    };
     const plan = new L.Routing.Plan(currentWaypoints.map((point) => L.latLng(point)), {
       createMarker: function(i, waypoint) {
         return L.marker(waypoint.latLng, {
           draggable: false,
-          icon: L.icon({
-            iconUrl: stopIcon,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10],
-          }),
+          icon: customDivIcon(markerColor, i),
         });
       },
       routeWhileDragging: false,
       addWaypoints: false,
-    });
+    })
     const routingControl = L.Routing.control({
       plan: plan,
       routeWhileDragging: false,
       addWaypoints: false,
-      lineOptions: {styles: [{color: 'blue'}], extendToWaypoints: true, missingRouteTolerance: 0},
+      lineOptions: {styles: [{color: lineColor}], extendToWaypoints: true, missingRouteTolerance: 0},
       waypointMode: 'snap',
-    }).addTo(map);
+    })
+    .addTo(map);
     
     return () => {
       map.removeControl(routingControl);

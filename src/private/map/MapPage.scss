@@ -1,0 +1,28 @@
+.blue-div-icon {
+  background-color: blue;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: block;
+  background: transparent;
+  border: none;
+}
+
+.blue-div-icon div {
+  background-color: blue;
+  color: white;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px;
+}
+
+
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+.leaflet-routing-container {
+  display: none !important;
+}

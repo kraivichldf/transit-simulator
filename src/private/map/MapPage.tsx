@@ -4,7 +4,7 @@ import L from 'leaflet';
 import ClickedRoutingMachine from './ClickedRoutingMachine'; // Import the custom routing component
 import MapClickHandler from './MapClickHandler';
 import StaticRoutingMachine from './StaticRoutingMachine';
-
+import './MapPage.scss';
 const lampangBounds: L.LatLngBoundsExpression = [
   [18.1888, 99.3931],
   [18.3888, 99.5931],
@@ -14,7 +14,7 @@ export default class MapPage extends Component {
   render() {
     const position: L.LatLngTuple = [18.2888, 99.4931];
     const waypoints: L.LatLngTuple[] = [];
-    const staticWaypoint: L.LatLngTuple[] = [
+    const blueLine: L.LatLngTuple[] = [
       [
           18.26839647550336,
           99.46656703948975
@@ -72,19 +72,19 @@ export default class MapPage extends Component {
           99.4696569442749
       ],
       [
-          18.268151961245124,
-          99.46673870086671
+          18.268529269496074,
+          99.46701892051196
       ]
     ];
     return (
-      <MapContainer maxBounds={lampangBounds} center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
+      <MapContainer maxBounds={lampangBounds} center={position} zoom={13} minZoom={13} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <ClickedRoutingMachine waypoints={waypoints} /> 
         <MapClickHandler onClick={(e) => waypoints.push([e.latlng.lat, e.latlng.lng])} />
-        <StaticRoutingMachine waypoints={staticWaypoint} />
+        <StaticRoutingMachine waypoints={blueLine} lineColor="rgb(0, 0, 255)" markerColor="blue" />
       </MapContainer>
     );
   }
