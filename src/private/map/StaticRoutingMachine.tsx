@@ -16,13 +16,17 @@ interface RoutingProps {
   markerColor: string;
 }
 
+interface Vehicle {
+  startPointIndex: number;
+  currentStopIndex: number;
+  vehicleMarker: L.Marker | null;
+}
+
 const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, markerColor }) => {
   const map = useMap();
   const [routePath, setRoutePath] = useState<L.LatLngTuple[]>([]);
-  const [vehicleState, setVehicleState] = useState<{ currentStopIndex: number; vehicleMarker: L.Marker | null }>({
-    currentStopIndex: 0,
-    vehicleMarker: null,
-  });
+  const [vehicleState, setVehicleState] = useState<Vehicle[]>([]);
+  const [isVehicleAdded, setIsVehicleAdded] = useState(false);
   const animationFrameRef = useRef<number | null>(null);
 
   const customDivIcon = (name: string, number: number | string) => {
@@ -36,7 +40,6 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
 
   const interpolatePoints = (path: L.LatLngTuple[], segmentDistance: number) => {
     const interpolatedPath: L.LatLngTuple[] = [];
-
     for (let i = 0; i < path.length - 1; i++) {
       const start = L.latLng(path[i]);
       const end = L.latLng(path[i + 1]);
@@ -51,38 +54,42 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
         interpolatedPath.push(interpolatedPoint);
       }
     }
-    interpolatedPath.push(path[path.length - 1]); // Add the last point
+    interpolatedPath.push(path[path.length - 1]); 
     return interpolatedPath;
   };
 
-  const animateVehicle = (path: L.LatLngTuple[], duration: number) => {
+  const animateVehicle = (vehicleIndex: number, path: L.LatLngTuple[], duration: number) => {
     let startTime: number | null = null;
     const totalPoints = path.length;
-
     const animate = (time: number) => {
       if (!startTime) startTime = time;
       const elapsedTime = time - startTime;
-      const factor = elapsedTime / duration;
-
+      const factor = elapsedTime / (duration);
       if (factor < 1) {
-        const index = Math.min(Math.floor(factor * totalPoints), totalPoints - 1);
-        const newPosition = path[index];
-        if (vehicleState.vehicleMarker) {
-          vehicleState.vehicleMarker.setLatLng(newPosition);
+        const vehicleStartIndex = vehicleState[vehicleIndex].startPointIndex * 200;
+        const index = vehicleStartIndex + Math.min(Math.floor(factor * (totalPoints - vehicleStartIndex)), totalPoints - vehicleStartIndex - 1);
+        if (vehicleState[vehicleIndex].vehicleMarker) {
+          const newPosition = path[index];
+          vehicleState[vehicleIndex].vehicleMarker.setLatLng(newPosition);
         }
         animationFrameRef.current = requestAnimationFrame(animate);
       } else {
-        if (vehicleState.vehicleMarker) {
-          vehicleState.vehicleMarker.setLatLng(path[totalPoints - 1]);
+        if (vehicleState[vehicleIndex].vehicleMarker) {
+          vehicleState[vehicleIndex].vehicleMarker.setLatLng(path[totalPoints - 1]);
         }
         setVehicleState((prevState) => ({
-          currentStopIndex: (prevState.currentStopIndex + 1) % stops.length,
-          vehicleMarker: prevState.vehicleMarker,
+          ...prevState,
+          currentStopIndex: (vehicleState[vehicleIndex].currentStopIndex + 1) % stops.length,
         }));
       }
     };
-
     animationFrameRef.current = requestAnimationFrame(animate);
+  };
+
+  const startAddingVehicles = () => {
+    for (let i = 0; i < 5; i++) {
+      setVehicleState((prevState) => [...prevState, { startPointIndex: i, currentStopIndex: i, vehicleMarker: null }]);
+    }
   };
 
   useEffect(() => {
@@ -117,45 +124,47 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
       setRoutePath(interpolatedPath);
     })
     .addTo(map);
-
+    if (!isVehicleAdded) {
+      startAddingVehicles();
+      setIsVehicleAdded(true);
+    }
     return () => {
       map.removeControl(routingControl);
-      if (vehicleState.vehicleMarker) {
-        vehicleState.vehicleMarker.removeFrom(map);
-      }
     };
   }, [map, stops, lineColor, markerColor]);
 
   useEffect(() => {
-    if (routePath.length === 0) return;
-
+    if (routePath.length === 0 || vehicleState.length === 0) return;
+  
     const totalDistance = routePath.reduce((acc, point, index) => {
       if (index === 0) return acc;
       return acc + map.distance(L.latLng(routePath[index - 1]), L.latLng(point));
     }, 0);
     
-    const speed = 60 * 1000 / 3600; // Speed in meters per second (60 km/h)
-    const duration = (totalDistance / speed) * 1000; // Duration in milliseconds
-
-    if (vehicleState.vehicleMarker) {
-      animateVehicle(routePath, duration);
-    } else {
-      const initialMarker = L.marker(stops[0].coordinates, {
-        icon: customDivIcon('blue', 'V'),
-      }).addTo(map);
-      setVehicleState({
-        currentStopIndex: 0,
-        vehicleMarker: initialMarker,
-      });
-      animateVehicle(routePath, duration);
-    }
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+    const speed = 500 * 1000 / 3600; // 60 km/h in meters per millisecond
+    const duration = (totalDistance / speed) * 1000;
+    vehicleState.forEach((vehicle, i) => {
+      if (vehicle.vehicleMarker) {
+        animateVehicle(i, routePath, duration);
+      } else {
+        const initialMarker = L.marker(stops[vehicle.startPointIndex].coordinates, {
+          icon: customDivIcon('blue', 'V'),
+        }).addTo(map);
+        
+        setVehicleState((prevState) => {
+          const newState = [...prevState];
+          newState[i] = {
+            ...vehicle,
+            vehicleMarker: initialMarker,
+          };
+          return newState;
+        });
+  
+        animateVehicle(i, routePath, duration);
       }
-    };
-  }, [routePath, vehicleState]);
+    });
+  }, [routePath, vehicleState, isVehicleAdded]);
+  
 
   return null;
 };

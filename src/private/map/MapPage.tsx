@@ -1,8 +1,6 @@
 import { Component } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
-import ClickedRoutingMachine from './ClickedRoutingMachine'; // Import the custom routing component
-import MapClickHandler from './MapClickHandler';
 import StaticRoutingMachine from './StaticRoutingMachine';
 import './MapPage.scss';
 const lampangBounds: L.LatLngBoundsExpression = [
@@ -13,7 +11,6 @@ const lampangBounds: L.LatLngBoundsExpression = [
 export default class MapPage extends Component {
   render() {
     const position: L.LatLngTuple = [18.2888, 99.4931];
-    const waypoints: L.LatLngTuple[] = [];
     const blueLine: { coordinates: L.LatLngTuple; stopNumber: number; }[] = [
       { coordinates: [18.26839647550336, 99.46656703948975], stopNumber: 1 },
       { coordinates: [18.271636256904458, 99.46938872337343], stopNumber: 2 },
