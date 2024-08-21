@@ -36,7 +36,7 @@ export default class MapPage extends Component {
         />
         {/* <ClickedRoutingMachine waypoints={waypoints} /> 
         <MapClickHandler onClick={(e) => waypoints.push([e.latlng.lat, e.latlng.lng])} /> */}
-        <StaticRoutingMachine stops={blueLine} lineColor="rgb(0, 0, 255)" markerColor="blue" />
+        <StaticRoutingMachine stops={blueLine} lineColor="rgb(0, 0, 255)" markerColor="blue" vehicleNumber={5}/>
       </MapContainer>
     );
   }

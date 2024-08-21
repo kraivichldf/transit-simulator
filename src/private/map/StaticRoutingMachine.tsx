@@ -14,16 +14,16 @@ interface RoutingProps {
   stops: Stop[];
   lineColor: string;
   markerColor: string;
+  vehicleNumber: number;
 }
 
 interface Vehicle {
   startPointIndex: number;
-  currentStopIndex: number;
   vehicleMarker: L.Marker | null;
   finishRoute: boolean
 }
 
-const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, markerColor }) => {
+const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, markerColor, vehicleNumber }) => {
   const map = useMap();
   const [routePath, setRoutePath] = useState<L.LatLngTuple[]>([]);
   const [vehicleState, setVehicleState] = useState<Vehicle[]>([]);
@@ -64,7 +64,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
     const totalPoints = path.length;
     const animate = (time: number) => {
       if (!startTime) startTime = time;
-      const {totalDistance, nearestStartpointIndex} = calculateTotalDistance(stops, vehicleState[vehicleIndex], path, map);
+      const {totalDistance, nearestStartpointIndex} = calculateTotalDistance( vehicleIndex ,path, map);
       const elapsedTime = time - startTime;
       const duration = (totalDistance / speed ) * 1000;
       const factor = elapsedTime / (duration);
@@ -84,7 +84,6 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
           const newState = [...prevState];
           newState[vehicleIndex] = {
             ...newState[vehicleIndex],
-            currentStopIndex: (newState[vehicleIndex].currentStopIndex + 1) % stops.length,
             startPointIndex: 0,
             finishRoute: true
           };
@@ -96,30 +95,46 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
   };
 
   const startAddingVehicles = () => {
-    for (let i = 0; i < 5; i++) {
-      setVehicleState((prevState) => [...prevState, { startPointIndex: i, currentStopIndex: i, vehicleMarker: null, finishRoute: true}]);
-    }
+    setVehicleState(
+      Array(vehicleNumber)
+        .fill(0)
+        .map((_, i) => ({
+          startPointIndex: i,
+          vehicleMarker: null,
+          finishRoute: true,
+        }))
+    );
   };
 
-  function calculateTotalDistance(stops: Stop[], vehicle: Vehicle, routePath : L.LatLngTuple[], map: L.Map, acceptableDistance = 50) {
-    const startPoint = stops[vehicle.startPointIndex].coordinates;
+  function calculateTotalDistance(vehicleIndex: number, routePath : L.LatLngTuple[], map: L.Map) {
     
-    const nearestStartpointIndex = routePath.findIndex(point => {
-      const distance = map.distance(L.latLng(startPoint), L.latLng(point));
-      return distance <= acceptableDistance;
-    });
+    const betDistanceVehicles = Math.floor((routePath.length * 10) / vehicleNumber);
+    let nearestStartpointIndex = - 1;
     
+    if (vehicleState[vehicleIndex].startPointIndex !== 0) {
+      nearestStartpointIndex = Math.floor((betDistanceVehicles * vehicleIndex)/ 10)
+    } else {
+      nearestStartpointIndex = 0;
+    }
+    
+    if (nearestStartpointIndex > routePath.length - 1) nearestStartpointIndex = routePath.length - 1;
     const totalDistance = routePath.reduce((acc, point, index) => {
       if (index <= nearestStartpointIndex) return acc;
       if (index === 0) return acc;
       return acc + map.distance(L.latLng(routePath[index - 1]), L.latLng(point));
     }, 0);
-    
     return {
       totalDistance,
       nearestStartpointIndex
     };
   }
+
+  useEffect(() => {
+    if (!isVehicleAdded) {
+      startAddingVehicles();
+      setIsVehicleAdded(true);
+    }
+  }, [])
 
   useEffect(() => {
     if (!map) return;
@@ -153,10 +168,6 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
       setRoutePath(interpolatedPath);
     })
     .addTo(map);
-    if (!isVehicleAdded) {
-      startAddingVehicles();
-      setIsVehicleAdded(true);
-    }
     return () => {
       map.removeControl(routingControl);
     };
@@ -174,7 +185,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
         };
         return newState;
       });
-      const speed = 5000 * 1000 / 3600; // 60 km/h in meters per millisecond
+      const speed = 60 * 1000 / 3600; // 60 km/h in meters per millisecond
       if (vehicle.vehicleMarker) {
         animateVehicle(i, routePath, speed);
       } else {
