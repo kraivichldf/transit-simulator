@@ -143,7 +143,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
       createMarker: (i, waypoint) => {
         return L.marker(waypoint.latLng, {
           draggable: false,
-          icon: customDivIcon(markerColor, i),
+          icon: customDivIcon(markerColor, stops[i].stopNumber),
         });
       },
       routeWhileDragging: false,
@@ -185,12 +185,12 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
         };
         return newState;
       });
-      const speed = 60 * 1000 / 3600; // 60 km/h in meters per millisecond
+      const speed = 100 * 1000 / 3600; // 60 km/h in meters per millisecond
       if (vehicle.vehicleMarker) {
         animateVehicle(i, routePath, speed);
       } else {
         const initialMarker = L.marker(stops[vehicle.startPointIndex].coordinates, {
-          icon: customDivIcon('blue', 'V'),
+          icon: customDivIcon(markerColor, 'V'),
         }).addTo(map);
         
         setVehicleState((prevState) => {
