@@ -78,6 +78,45 @@
   border: none;
 }
 
+.purple-div-icon {
+  background-color: purple;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: block;
+  background: transparent;
+  border: none;
+}
+
+.purple-div-icon div {
+  background-color: purple;
+  color: white;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px;
+}
+
+.black-div-icon {
+  background-color: black;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: block;
+  background: transparent;
+  border: none;
+}
+
+.black-div-icon div {
+  background-color: black;
+  color: white;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px;
+}
 
 .leaflet-control-attribution {
   display: none !important;

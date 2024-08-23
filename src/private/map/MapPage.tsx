@@ -89,6 +89,79 @@ export default class MapPage extends Component {
       { coordinates: [18.290421721286567, 99.49170470237733], stopNumber: 8 },
       { coordinates: [18.288908975877344, 99.49133455753328], stopNumber: 1 }
     ]
+    const purpleLine: { coordinates: L.LatLngTuple; stopNumber: number; }[] = [
+      { coordinates: [18.288363976821937, 99.49173688888551], stopNumber: 1 },
+      { coordinates: [18.285740826559962, 99.50036287307739], stopNumber: 2 },
+      { coordinates: [18.277748887273166, 99.4989198446274], stopNumber: 3 },
+      { coordinates: [18.273673824288277, 99.49804544448854], stopNumber: 4 },
+      { coordinates: [18.267326723080476, 99.49691891670227], stopNumber: 5 },
+      { coordinates: [18.26136655318692, 99.49560999870302], stopNumber: 6 },
+      { coordinates: [18.25678166789379, 99.49342131614685], stopNumber: 7 },
+      { coordinates: [18.253378585886527, 99.4913935661316], stopNumber: 8 },
+      { coordinates: [18.249730897017393, 99.49051380157472], stopNumber: 9 },
+      { coordinates: [18.24247604799423, 99.49138820171358], stopNumber: 10 },
+      { coordinates: [18.2372588907466, 99.49071764945985], stopNumber: 11 },
+      { coordinates: [18.232464470528647, 99.49060499668123], stopNumber: 12 },
+      { coordinates: [18.23010542460795, 99.49057281017305], stopNumber: 13 },
+      { coordinates: [18.232515421491453, 99.49040651321413], stopNumber: 14 },
+      { coordinates: [18.237391359566832, 99.49056744575502], stopNumber: 15 },
+      { coordinates: [18.24247604799423, 99.49138820171358], stopNumber: 10 },
+      { coordinates: [18.249730897017393, 99.49051380157472], stopNumber: 9 },
+      { coordinates: [18.253378585886527, 99.4913935661316], stopNumber: 8 },
+      { coordinates: [18.25678166789379, 99.49342131614685], stopNumber: 7 },
+      { coordinates: [18.26136655318692, 99.49560999870302], stopNumber: 6 },
+      { coordinates: [18.267326723080476, 99.49691891670227], stopNumber: 5 },
+      { coordinates: [18.273673824288277, 99.49804544448854], stopNumber: 4 },
+      { coordinates: [18.277748887273166, 99.4989198446274], stopNumber: 3 },
+      { coordinates: [18.285740826559962, 99.50036287307739], stopNumber: 2 },
+      { coordinates: [18.288363976821937, 99.49173688888551], stopNumber: 1 },
+    ]
+    const blackLine: { coordinates: L.LatLngTuple; stopNumber: number; }[] = [
+      {
+        coordinates: [18.28862883638997, 99.4902402162552],
+        stopNumber: 1
+      },
+      {
+        coordinates: [18.284172010934025, 99.48684990406038],
+        stopNumber: 2
+      },
+      {
+        coordinates: [18.28133486351626, 99.48812127113344],
+        stopNumber: 3
+      },
+      {
+        coordinates: [18.27859445085082, 99.48760092258455],
+        stopNumber: 4
+      },
+      {
+        coordinates: [18.275828525766553, 99.48378682136537],
+        stopNumber: 5
+      },
+      {
+        coordinates: [18.274183212395744, 99.48144793510438],
+        stopNumber: 6
+      },
+      {
+        coordinates: [18.27511538875998, 99.48184490203859],
+        stopNumber: 7
+      },
+      {
+        coordinates: [18.27728535368339, 99.48355615139009],
+        stopNumber: 8
+      },
+      {
+        coordinates: [18.27964885267011, 99.48269784450532],
+        stopNumber: 9
+      },
+      {
+        coordinates: [18.283097262166866, 99.4868177175522],
+        stopNumber: 10
+      },
+      {
+        coordinates: [18.28862883638997, 99.4902402162552],
+        stopNumber: 1
+      },
+    ]
     return (
       <MapContainer maxBounds={lampangBounds} center={position} zoom={13} minZoom={13} style={{ height: '100%', width: '100%' }}>
         <TileLayer
@@ -101,6 +174,8 @@ export default class MapPage extends Component {
         <StaticRoutingMachine stops={redLine} lineColor="rgb(255, 0, 0)" markerColor="red" vehicleNumber={8}/>
         <StaticRoutingMachine stops={yellowLine} lineColor="rgb(255, 255, 0)" markerColor="yellow" vehicleNumber={3}/>
         <StaticRoutingMachine stops={greenLine} lineColor="rgb(0, 255, 0)" markerColor="green" vehicleNumber={4}/>
+        <StaticRoutingMachine stops={purpleLine} lineColor="rgb(128, 0, 128)" markerColor="purple" vehicleNumber={10}/>
+        <StaticRoutingMachine stops={blackLine} lineColor="rgb(0, 0, 0)" markerColor="black" vehicleNumber={5}/>
       </MapContainer>
     );
   }

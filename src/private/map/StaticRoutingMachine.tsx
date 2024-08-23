@@ -20,7 +20,8 @@ interface RoutingProps {
 interface Vehicle {
   startPointIndex: number;
   vehicleMarker: L.Marker | null;
-  finishRoute: boolean
+  finishRoute: boolean;
+  waitingTime: number;
 }
 
 const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, markerColor, vehicleNumber }) => {
@@ -63,6 +64,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
     let startTime: number | null = null;
     const totalPoints = path.length;
     const animate = (time: number) => {
+      
       if (!startTime) startTime = time;
       const {totalDistance, nearestStartpointIndex} = calculateTotalDistance( vehicleIndex ,path, map);
       const elapsedTime = time - startTime;
@@ -102,6 +104,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
           startPointIndex: i,
           vehicleMarker: null,
           finishRoute: true,
+          waitingTime: 0,
         }))
     );
   };
@@ -177,33 +180,35 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
     if (routePath.length === 0 || vehicleState.length === 0) return;
     for (const [i, vehicle] of vehicleState.entries()) {
       if (!vehicle.finishRoute) continue;
-      setVehicleState((prevState) => {
-        const newState = [...prevState];
-        newState[i] = {
-          ...vehicle,
-          finishRoute: false
-        };
-        return newState;
-      });
-      const speed = 100 * 1000 / 3600; // 60 km/h in meters per millisecond
-      if (vehicle.vehicleMarker) {
-        animateVehicle(i, routePath, speed);
-      } else {
-        const initialMarker = L.marker(stops[vehicle.startPointIndex].coordinates, {
-          icon: customDivIcon(markerColor, 'V'),
-        }).addTo(map);
-        
         setVehicleState((prevState) => {
           const newState = [...prevState];
           newState[i] = {
             ...vehicle,
-            vehicleMarker: initialMarker,
+            finishRoute: false
           };
           return newState;
         });
-  
-        animateVehicle(i, routePath,  speed);
+        const speed = 1000 * 1000 / 3600; // 60 km/h in meters per millisecond
+        if (vehicle.vehicleMarker) {
+          animateVehicle(i, routePath, speed);
+        } else {
+          const initialMarker = L.marker(stops[vehicle.startPointIndex].coordinates, {
+            icon: customDivIcon(markerColor, 'V'),
+          }).addTo(map);
+          
+          setVehicleState((prevState) => {
+            const newState = [...prevState];
+            newState[i] = {
+              ...vehicle,
+              vehicleMarker: initialMarker,
+            };
+            return newState;
+          });
+    
+          animateVehicle(i, routePath,  speed);
+        
       }
+      
     }
   }, [routePath, vehicleState, isVehicleAdded]);
   
