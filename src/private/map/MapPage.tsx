@@ -65,6 +65,30 @@ export default class MapPage extends Component {
       { coordinates: [18.282363780511222, 99.46985006332399], stopNumber: 30 },
       { coordinates: [18.284177104514207, 99.4666635990143], stopNumber: 31 }
     ]
+    const yellowLine: { coordinates: L.LatLngTuple; stopNumber: number; }[] = [
+      { coordinates: [18.284574403308344, 99.46664214134218], stopNumber: 1 },
+      { coordinates: [18.287549021766964, 99.46869134902956], stopNumber: 2 },
+      { coordinates: [18.28981051260956, 99.47353005409241], stopNumber: 3 },
+      { coordinates: [18.289820699438497, 99.47977423667908], stopNumber: 4 },
+      { coordinates: [18.289423412666135, 99.4857394695282], stopNumber: 5 },
+      { coordinates: [18.28898537747716, 99.49007391929628], stopNumber: 6 },
+      { coordinates: [18.289423412666135, 99.4857394695282], stopNumber: 5 },
+      { coordinates: [18.289820699438497, 99.47977423667908], stopNumber: 4 },
+      { coordinates: [18.28981051260956, 99.47353005409241], stopNumber: 3 },
+      { coordinates: [18.287549021766964, 99.46869134902956], stopNumber: 2 },
+      { coordinates: [18.284574403308344, 99.46664214134218], stopNumber: 1 },
+    ]
+    const greenLine: { coordinates: L.LatLngTuple; stopNumber: number; }[] = [
+      { coordinates: [18.288908975877344, 99.49133455753328], stopNumber: 1 },
+      { coordinates: [18.28854734118137, 99.49602842330934], stopNumber: 2 },
+      { coordinates: [18.28884276113028, 99.49892520904542], stopNumber: 3 },
+      { coordinates: [18.289148367444227, 99.5011031627655], stopNumber: 4 },
+      { coordinates: [18.290574523119083, 99.5007061958313], stopNumber: 5 },
+      { coordinates: [18.28997350180081, 99.49778795242311], stopNumber: 6 },
+      { coordinates: [18.289953128160274, 99.49433326721193], stopNumber: 7 },
+      { coordinates: [18.290421721286567, 99.49170470237733], stopNumber: 8 },
+      { coordinates: [18.288908975877344, 99.49133455753328], stopNumber: 1 }
+    ]
     return (
       <MapContainer maxBounds={lampangBounds} center={position} zoom={13} minZoom={13} style={{ height: '100%', width: '100%' }}>
         <TileLayer
@@ -75,6 +99,8 @@ export default class MapPage extends Component {
         <MapClickHandler onClick={(e) => waypoints.push([e.latlng.lat, e.latlng.lng])} />
         <StaticRoutingMachine stops={blueLine} lineColor="rgb(0, 0, 255)" markerColor="blue" vehicleNumber={5}/>
         <StaticRoutingMachine stops={redLine} lineColor="rgb(255, 0, 0)" markerColor="red" vehicleNumber={8}/>
+        <StaticRoutingMachine stops={yellowLine} lineColor="rgb(255, 255, 0)" markerColor="yellow" vehicleNumber={3}/>
+        <StaticRoutingMachine stops={greenLine} lineColor="rgb(0, 255, 0)" markerColor="green" vehicleNumber={4}/>
       </MapContainer>
     );
   }
