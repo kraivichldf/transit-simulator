@@ -22,6 +22,9 @@ const ClickedRoutingMachine: React.FC<RoutingProps> = ({ waypoints }) => {
     setCurrentWaypoints(waypoints);
     const plan = new L.Routing.Plan(currentWaypoints.map((point) => L.latLng(point)), {
       createMarker: function(i, waypoint) {
+        if (i === 0) {
+          console.log(waypoint);
+        }
         return L.marker(waypoint.latLng, {
           draggable: false,
         });
