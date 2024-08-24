@@ -3,8 +3,8 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import StaticRoutingMachine from './StaticRoutingMachine';
 import './MapPage.scss';
-import ClickedRoutingMachine from './ClickedRoutingMachine';
-import MapClickHandler from './MapClickHandler';
+// import ClickedRoutingMachine from './ClickedRoutingMachine';
+// import MapClickHandler from './MapClickHandler';
 const lampangBounds: L.LatLngBoundsExpression = [
   [18.1888, 99.3931],
   [18.3888, 99.5931],
@@ -13,7 +13,7 @@ const lampangBounds: L.LatLngBoundsExpression = [
 export default class MapPage extends Component {
   
   render() {
-    const waypoints: L.LatLngTuple[] = [];
+    // const waypoints: L.LatLngTuple[] = [];
     const position: L.LatLngTuple = [18.2888, 99.4931];
     const blueLine: { coordinates: L.LatLngTuple; stopNumber: number; }[] = [
       { coordinates: [18.26839647550336, 99.46656703948975], stopNumber: 1 },
@@ -168,8 +168,8 @@ export default class MapPage extends Component {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <ClickedRoutingMachine waypoints={waypoints} /> 
-        <MapClickHandler onClick={(e) => waypoints.push([e.latlng.lat, e.latlng.lng])} />
+        {/* <ClickedRoutingMachine waypoints={waypoints} /> 
+        <MapClickHandler onClick={(e) => waypoints.push([e.latlng.lat, e.latlng.lng])} /> */}
         <StaticRoutingMachine stops={blueLine} lineColor="rgb(0, 0, 255)" markerColor="blue" vehicleNumber={5}/>
         <StaticRoutingMachine stops={redLine} lineColor="rgb(255, 0, 0)" markerColor="red" vehicleNumber={8}/>
         <StaticRoutingMachine stops={yellowLine} lineColor="rgb(255, 255, 0)" markerColor="yellow" vehicleNumber={3}/>
