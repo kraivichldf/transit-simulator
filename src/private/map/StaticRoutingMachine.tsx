@@ -22,6 +22,7 @@ interface Vehicle {
   vehicleMarker: L.Marker | null;
   finishRoute: boolean;
   waitingTime: number;
+  currentStopNumber: number[];
 }
 
 const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, markerColor, vehicleNumber }) => {
@@ -60,11 +61,41 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
     return interpolatedPath;
   };
 
+  const isNearStop = (vehicle: Vehicle, stops: Stop[]) => {
+    if (!vehicle.vehicleMarker) return false;
+    const vehiclePosition = vehicle.vehicleMarker.getLatLng();
+    
+    return stops.some((stop) => {
+      const stopNumber = stop.stopNumber;
+      
+      // Skip this stop if it has already been visited
+      if (vehicle.currentStopNumber && vehicle.currentStopNumber.includes(stopNumber)) {
+        return false;
+      }
+  
+      const stopPosition = L.latLng(stop.coordinates);
+      if (map.distance(vehiclePosition, stopPosition) < 15) {
+        // Mark this stop as visited
+        vehicle.currentStopNumber = [];
+        vehicle.currentStopNumber = vehicle.currentStopNumber ? [...vehicle.currentStopNumber, stopNumber] : [stopNumber];
+        return true;
+      }
+      
+      return false;
+    });
+  };
+
   const animateVehicle = (vehicleIndex: number, path: L.LatLngTuple[], speed: number) => {
     let startTime: number | null = null;
     const totalPoints = path.length;
     const animate = (time: number) => {
-      
+      const vehicle = vehicleState[vehicleIndex];
+      if (isNearStop(vehicle, stops)) {
+        setTimeout(() => {
+          requestAnimationFrame(animate); // Continue the animation after the delay
+        }, 5000); // 5 seconds delay
+        return;
+      }
       if (!startTime) startTime = time;
       const {totalDistance, nearestStartpointIndex} = calculateTotalDistance( vehicleIndex ,path, map);
       const elapsedTime = time - startTime;
@@ -73,14 +104,14 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
       if (factor < 1) {
         const vehicleStartIndex = nearestStartpointIndex;
         const index = vehicleStartIndex + Math.min(Math.floor(factor * (totalPoints - vehicleStartIndex)), totalPoints - vehicleStartIndex - 1);
-        if (vehicleState[vehicleIndex].vehicleMarker) {
+        if (vehicle.vehicleMarker) {
           const newPosition = path[index];
-          vehicleState[vehicleIndex].vehicleMarker.setLatLng(newPosition);
+          vehicle.vehicleMarker.setLatLng(newPosition);
         }
         animationFrameRef.current = requestAnimationFrame(animate);
       } else {
-        if (vehicleState[vehicleIndex].vehicleMarker) {
-          vehicleState[vehicleIndex].vehicleMarker.setLatLng(path[totalPoints - 1]);
+        if (vehicle.vehicleMarker) {
+          vehicle.vehicleMarker.setLatLng(path[totalPoints - 1]);
         }
         setVehicleState((prevState) => {
           const newState = [...prevState];
@@ -105,6 +136,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
           vehicleMarker: null,
           finishRoute: true,
           waitingTime: 0,
+          currentStopNumber: [],
         }))
     );
   };
@@ -188,7 +220,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
           };
           return newState;
         });
-        const speed = 1000 * 1000 / 3600; // 60 km/h in meters per millisecond
+        const speed = 100 * 1000 / 3600; // 60 km/h in meters per millisecond
         if (vehicle.vehicleMarker) {
           animateVehicle(i, routePath, speed);
         } else {
