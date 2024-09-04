@@ -21,8 +21,6 @@ interface Vehicle {
   startPointIndex: number;
   vehicleMarker: L.Marker | null;
   finishRoute: boolean;
-  waitingTime: number;
-  currentStopNumber: number[];
 }
 
 const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, markerColor, vehicleNumber }) => {
@@ -61,41 +59,12 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
     return interpolatedPath;
   };
 
-  const isNearStop = (vehicle: Vehicle, stops: Stop[]) => {
-    if (!vehicle.vehicleMarker) return false;
-    const vehiclePosition = vehicle.vehicleMarker.getLatLng();
-    
-    return stops.some((stop) => {
-      const stopNumber = stop.stopNumber;
-      
-      // Skip this stop if it has already been visited
-      if (vehicle.currentStopNumber && vehicle.currentStopNumber.includes(stopNumber)) {
-        return false;
-      }
-  
-      const stopPosition = L.latLng(stop.coordinates);
-      if (map.distance(vehiclePosition, stopPosition) < 15) {
-        // Mark this stop as visited
-        vehicle.currentStopNumber = [];
-        vehicle.currentStopNumber = vehicle.currentStopNumber ? [...vehicle.currentStopNumber, stopNumber] : [stopNumber];
-        return true;
-      }
-      
-      return false;
-    });
-  };
-
   const animateVehicle = (vehicleIndex: number, path: L.LatLngTuple[], speed: number) => {
     let startTime: number | null = null;
     const totalPoints = path.length;
     const animate = (time: number) => {
       const vehicle = vehicleState[vehicleIndex];
-      if (isNearStop(vehicle, stops)) {
-        setTimeout(() => {
-          requestAnimationFrame(animate); // Continue the animation after the delay
-        }, 5000); // 5 seconds delay
-        return;
-      }
+      
       if (!startTime) startTime = time;
       const {totalDistance, nearestStartpointIndex} = calculateTotalDistance( vehicleIndex ,path, map);
       const elapsedTime = time - startTime;
@@ -135,8 +104,6 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({ stops, lineColor, marker
           startPointIndex: i,
           vehicleMarker: null,
           finishRoute: true,
-          waitingTime: 0,
-          currentStopNumber: [],
         }))
     );
   };
