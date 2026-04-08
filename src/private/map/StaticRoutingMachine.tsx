@@ -29,7 +29,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({
   lineColor, 
   markerColor, 
   vehicleNumber,
-  speedKmh = 60 
+  speedKmh = 20 // Default speed reduced to 20 km/h for better visualization
 }) => {
   const map = useMap();
   const [routePath, setRoutePath] = useState<L.LatLngTuple[]>([]);
