@@ -29,7 +29,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({
   lineColor, 
   markerColor, 
   vehicleNumber,
-  speedKmh = 20 // Default speed reduced to 20 km/h for better visualization
+  speedKmh = 5 // Default speed reduced to 5 km/h for very slow visualization
 }) => {
   const map = useMap();
   const [routePath, setRoutePath] = useState<L.LatLngTuple[]>([]);
@@ -38,6 +38,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const totalDistanceRef = useRef<number>(0);
+  const speedRef = useRef<number>(speedKmh); // Keep speed in ref to avoid re-renders
 
   const customDivIcon = (name: string, number: number | string) => {
     return L.divIcon({
@@ -86,6 +87,11 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({
     ];
   }, [routePath]);
 
+  // Update speed ref when prop changes
+  useEffect(() => {
+    speedRef.current = speedKmh;
+  }, [speedKmh]);
+
   const animate = useCallback((time: number) => {
     if (routePath.length === 0 || vehicleMarkersRef.current.length === 0) {
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -95,7 +101,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({
     if (startTimeRef.current === 0) startTimeRef.current = time;
 
     // Speed in m/s
-    const speedMs = (speedKmh * 1000) / 3600;
+    const speedMs = (speedRef.current * 1000) / 3600;
     
     // Progress increment per second (1 = full route)
     const progressPerSecond = totalDistanceRef.current > 0 ? speedMs / totalDistanceRef.current : 0;
@@ -114,7 +120,7 @@ const StaticRoutingMachine: React.FC<RoutingProps> = ({
     });
 
     animationFrameRef.current = requestAnimationFrame(animate);
-  }, [routePath, speedKmh, getPositionAtProgress]);
+  }, [routePath, getPositionAtProgress]);
 
   useEffect(() => {
     if (!map) return;
